@@ -127,70 +127,96 @@ def trace_back_to_origin(x: str,
     # Here the empty alignments are initialised.
     ax = ''
     ay = ''
-    print(sequence_X, sequence_Y)
-    print(score_matrix)
-    print("scores are:",
-          match_score, mismatch_score, indel_score)
-    print("starting with i,j of:", i,j)
+    #print(sequence_X, sequence_Y)
+    #print(score_matrix)
+    #print("scores are:",
+    #      match_score, mismatch_score, indel_score)
+    #print("starting with i,j of:", i,j)
     while i > 1 and j > 1:
-        print("\n new iteration")
+        #print("\n new iteration")
         # Case 1: perfect alignment
         sc = score_matrix[i-1, j-1]
-        print(i, j, sequence_X[i], sequence_Y[j], score_matrix[i,j], sc)
+        #print(i, j, sequence_X[i], sequence_Y[j], score_matrix[i,j], sc)
         if sequence_X[i] == sequence_Y[j]:
-            print("CASE 0a")
+            #print("CASE 0a")
             sc = sc + match_score
         else:
-            print("CASE 0b")
+            #print("CASE 0b")
             sc = sc + mismatch_score
-        print("sc is now", sc)
+        #print("sc is now", sc)
 
         if sc == score_matrix[i, j]:
-            print("CASE 1")
+            #print("CASE 1")
             ax = sequence_X[i] + ax
             ay = sequence_Y[j] + ay
             i = i-1
             j = j-1
             continue
-        print("i,j is now,", i, j) 
+        #print("i,j is now,", i, j) 
         #Case 2: best of X was aligned to gap
         if (score_matrix[i-1, j] + indel_score) == score_matrix[ i, j]:
-            print("CASE 2")
+            #print("CASE 2")
             ax = sequence_X[i] + ax
             ay = '-' + ay
             i = i-1
-            print("i,j is now,", i, j) 
+            #print("i,j is now,", i, j) 
             continue
         
        #Case 3: best of Y was aligned to gap
         if (score_matrix[i, j-1] + indel_score) == score_matrix[ i, j]:
-            print("CASE 3")
+            #print("CASE 3")
             ax = '-' + ax
             ay = sequence_Y[j] + ay
             j = j-1
-            print("i,j is now,", i, j) 
+            #print("i,j is now,", i, j) 
             continue
     return ax, ay
+
+
+def needleman_wunch(x: str,
+                    y: str,
+                    match_score: int,
+                    mismatch_score: int,
+                    indel_score: int) -> tuple:
+    """
+    :param x: str: The X string that must be aligned to string Y.
+    :param y: str: The Y string that must be aligned to string X.
+    :param match_score: int: The match score. The value scored when x and y
+        are the same character.
+    :param mismatch_score: int: The mismatch score. The value scored when x
+        and y are not the same character.
+    :param indel_score: int: The indel score. This score gets given when the
+        there is an x when there is no y, or when there is an y and no x.
+    :return: tuple (str, str): The alignment between X and Y, with gaps
+        introduced.
+    """
+    score_matrix = calculate_score_matrix(x=x,
+                                          y=y,
+                                          match_score=match_score,
+                                          mismatch_score=mismatch_score,
+                                          indel_score=indel_score)
+    alignment = trace_back_to_origin(x=x,
+                                     y=y,
+                                     score_matrix=score_matrix,
+                                     match_score=match_score,
+                                     mismatch_score=mismatch_score,
+                                     indel_score=indel_score)
+    return alignment
+
 
 
 def main():
     """The main function
     """
-    x_string = "AAABBB"#generate_sequence()
-    y_string = "AAAAAB"#generate_sequence()
-    print(f"comparing {x_string} to {y_string}")
-    score_matrix = calculate_score_matrix(x=x_string,
-                                          y=y_string,
-                                          match_score=5,
-                                          mismatch_score=-2,
-                                          indel_score=-6)
-    alignment = trace_back_to_origin(x=x_string,
-                                     y=y_string,
-                                     score_matrix=score_matrix,
-                                     match_score=5,
-                                     mismatch_score=-2,
-                                     indel_score=-6)
-    print(alignment)
+    for i in range(10000):
+        y_string  =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
+        x_string = generate_sequence(sequence_length = len(y_string) - 1)
+        alignment = needleman_wunch(x=x_string,
+                                    y=y_string,
+                                    match_score=5,
+                                    mismatch_score=-2,
+                                    indel_score=-6)
+        print(alignment)
 
 
 if __name__ == "__main__":

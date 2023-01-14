@@ -209,7 +209,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     const y =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
 
     print("\n testing", "\n", y, "\n")
-    for i=1:100
+    for i=1:10000
         random_sequence = generate_sequence(sequence_length = length(y) - 1)
         #print("\n iteration ", i, "\n", random_sequence)
         alignment = needleman_wunch(x = random_sequence,
@@ -217,5 +217,6 @@ if abspath(PROGRAM_FILE) == @__FILE__
                                     match_score = 5,
                                     mismatch_score = -2,
                                     indel_score = -6)
+        print(alignment)
     end
 end
