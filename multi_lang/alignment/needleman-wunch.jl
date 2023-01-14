@@ -198,20 +198,25 @@ function needleman_wunch(;
     return alignment
 end
 
-function test()
+function main()
+    #MAIN FUNCTION HERE
+end
+
+if abspath(PROGRAM_FILE) == @__FILE__
+#     main()
+
     #= The test function 
     =#
-    y = "ATGCGCAGATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTG"
-    for iteration = 1:10000
-        random_sequence = generate_sequence(sequence_length = 60)
+    y = "AACGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTG"
+
+    print("\n testing", "\n", y, "\n")
+    for i=1:10000
+        random_sequence = generate_sequence(sequence_length = length(y) - 1)
+        print("\n iteration ", i, "\n", random_sequence)
         alignment = needleman_wunch(x = random_sequence,
                                     y = y,
                                     match_score = 5,
                                     mismatch_score = -2,
                                     indel_score = -6)
     end
-end
-
-if abspath(PROGRAM_FILE) == @__FILE__
-     main()
 end
