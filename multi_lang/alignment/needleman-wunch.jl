@@ -24,7 +24,6 @@ function generate_sequence(;
 
     dependencies --- Random
     =#
-
     return randstring(join(letters), sequence_length)
 end
 
@@ -44,6 +43,7 @@ function calculate_score_matrix(;
         and y are not the same character.
     :param indel_score: Int64: The indel score. This score gets given when the
         there is an x when there is no y, or when there is an y and no x.
+    :return: Matrix: The Needleman-Wunch scoring matrix.
     =#
 
     # initialise the matrix ---
@@ -52,15 +52,14 @@ function calculate_score_matrix(;
     sequence_y = "0" * y
 
     # initialising the null matrix
-    null = zeros(length(sequence_x),
-                 length(sequence_y))
-    # mapping the indel_score to the lr edges of the matrix, starting with 0
-    null[:, 1] = collect(0:length(sequence_x) - 1) * indel_score 
-    null[1, :] = collect(0:length(sequence_y) - 1) * indel_score
+    score_matrix = Array{Float64,2}(undef, 
+                                    length(sequence_x), 
+                                    length(sequence_y))
 
-    # score matrix is the matrix that will be filled
-    score_matrix = null
-    null = nothing
+    # mapping the indel_score to the lr edges of the matrix, starting with 0
+    score_matrix[:, 1] = collect(0:length(sequence_x) - 1) * indel_score 
+    score_matrix[1, :] = collect(0:length(sequence_y) - 1) * indel_score
+
 
     # filling the matrix with scores ---
     for i = 2:length(sequence_x)
@@ -110,7 +109,7 @@ function trace_back_to_origin(;
     :param indel_score: Int64: The indel score. This score gets given when the
         there is an x when there is no y, or when there is an y and no x.
     :return: tuple(String String): The alignment between X and Y, with gaps
-        instroduced.
+        introduced.
     =#
 
     #TODO the vector you have created seems to not have two dimensions.
@@ -207,12 +206,12 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
     #= The test function 
     =#
-    y = "AACGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTG"
+    const y =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
 
     print("\n testing", "\n", y, "\n")
-    for i=1:10000
+    for i=1:100
         random_sequence = generate_sequence(sequence_length = length(y) - 1)
-        print("\n iteration ", i, "\n", random_sequence)
+        #print("\n iteration ", i, "\n", random_sequence)
         alignment = needleman_wunch(x = random_sequence,
                                     y = y,
                                     match_score = 5,
