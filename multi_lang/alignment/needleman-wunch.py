@@ -3,7 +3,10 @@
 author --- Sibbe Bakker
 description --- An implementation of the needleman wunch alignment algorithm.
     This algorithm is a global alignment algorithm, it works best for comparing
-    sequences of equal length.
+    sequences of equal length. For simple complexity alignments, such as short
+    sequences, or a small amount of sequences, this programme works adiquatly,
+    but for a large amount of iterations (<1000×) this script is too slow to be
+    practical.
 usage
     Here I describe the useage:
     sequence_X --
@@ -208,7 +211,7 @@ def needleman_wunch(x: str,
 def main():
     """The main function
     """
-    for i in range(10000):
+    for i in range(1000):
         y_string  =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
         x_string = generate_sequence(sequence_length = len(y_string) - 1)
         alignment = needleman_wunch(x=x_string,

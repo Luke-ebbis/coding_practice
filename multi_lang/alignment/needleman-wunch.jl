@@ -7,6 +7,8 @@ description --- An implementation of the Needleman-wunch algorithm in Julia.
 todo --- Refactor the script to use as few global variables as possible. This
     is because global variables are slow in Julia. Also try to make the script
     work with arguments.
+extra sources --- See https://bioboot.github.io/bimm143_W20/class-material/nw/
+    for an interactive app on the Needleman-wunch algorithm.
 =#
 
 using Random
@@ -209,7 +211,7 @@ if abspath(PROGRAM_FILE) == @__FILE__
     const y =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
 
     print("\n testing", "\n", y, "\n")
-    for i=1:10000
+    for i=1:1000000
         random_sequence = generate_sequence(sequence_length = length(y) - 1)
         #print("\n iteration ", i, "\n", random_sequence)
         alignment = needleman_wunch(x = random_sequence,
@@ -217,6 +219,5 @@ if abspath(PROGRAM_FILE) == @__FILE__
                                     match_score = 5,
                                     mismatch_score = -2,
                                     indel_score = -6)
-        print(alignment)
     end
 end
