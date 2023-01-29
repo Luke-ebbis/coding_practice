@@ -11,7 +11,10 @@ extra sources --- See https://bioboot.github.io/bimm143_W20/class-material/nw/
     for an interactive app on the Needleman-wunch algorithm.
 =#
 
+# For generating random sequences
 using Random
+# For making a array with a set size
+using StaticArrays
 
 function generate_sequence(;
     sequence_length::Int,
@@ -28,6 +31,7 @@ function generate_sequence(;
     =#
     return randstring(join(letters), sequence_length)
 end
+
 
 function calculate_score_matrix(;
         x::String,
@@ -54,10 +58,9 @@ function calculate_score_matrix(;
     sequence_y = "0" * y
 
     # initialising the null matrix
-    score_matrix = Array{Float64,2}(undef, 
-                                    length(sequence_x), 
-                                    length(sequence_y))
-
+    score_matrix = Array{Int,2}(undef,
+                                length(sequence_x), 
+                                length(sequence_y))
     # mapping the indel_score to the lr edges of the matrix, starting with 0
     score_matrix[:, 1] = collect(0:length(sequence_x) - 1) * indel_score 
     score_matrix[1, :] = collect(0:length(sequence_y) - 1) * indel_score
@@ -91,6 +94,7 @@ function calculate_score_matrix(;
     return score_matrix
 end
 
+
 function trace_back_to_origin(;
         x::String,
         y::String,
@@ -116,6 +120,8 @@ function trace_back_to_origin(;
 
     #TODO the vector you have created seems to not have two dimensions.
     #TODO determine why the continue statements are needed
+    #TODO maybe this function can use a static matrix to speed up the code even
+    # more.
     # add the character '0' to the start of each string.
 
     sequence_x = "0" * x
@@ -165,6 +171,7 @@ function trace_back_to_origin(;
     return ax, ay
 end
 
+
 function needleman_wunch(;
         x::String,
         y::String,
@@ -199,6 +206,44 @@ function needleman_wunch(;
     return alignment
 end
 
+
+function write_alignment(;
+        filename::String,
+        name::String,
+        comment::String,
+        alignment::Tuple)
+    #=Writing the alignments to a file using a fasta like format
+    
+    :param filename: String: The name of the output file.
+    :param name: String: The name of the alignment. Linebreaks will be removed.
+        May not contain any spaces.
+    :param comment: String: The comment field of the alignment. Line breaks
+        will be removed.
+    :param alignment: Tuple{String, String}: The alignment as a Tuple of two
+        equal length strings.
+    :return: None: 
+    =#
+
+    # check if the alignment is equal length
+    equal_length = length(alignment[1]) == length(alignment[2])
+    @assert equal_length == true "The length of alignment strings is not " * 
+    "equal between string x (length = $(length(alignment[1]))) and string " *
+    "y (length = $(length(alignment[2])))"
+
+    alignment_string = ">$name $comment \n $(alignment[1])\n$(alignment[2])\n"
+
+    if .!isfile(filename)
+        # if the file does not exist, make it
+        open(filename, "w") do file
+            write(file, "")
+        end
+    end
+    open(filename, "a") do file
+        write(file, alignment_string)
+    end
+end
+
+
 function main()
     #MAIN FUNCTION HERE
 end
@@ -208,10 +253,13 @@ if abspath(PROGRAM_FILE) == @__FILE__
 
     #= The test function 
     =#
-    const y =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
-
-    print("\n testing", "\n", y, "\n")
-    for i=1:1000000
+    outfile = "alignmentfile.txt"
+    number = BigInt(100000)
+    length_seq = 79
+    print("writing $number random alignments to $outfile, each sequence " *
+          "having a length of $length_seq")
+    for i=1:number
+        y = generate_sequence(sequence_length = length_seq - 1)
         random_sequence = generate_sequence(sequence_length = length(y) - 1)
         #print("\n iteration ", i, "\n", random_sequence)
         alignment = needleman_wunch(x = random_sequence,
@@ -219,5 +267,11 @@ if abspath(PROGRAM_FILE) == @__FILE__
                                     match_score = 5,
                                     mismatch_score = -2,
                                     indel_score = -6)
+        write_alignment(filename = outfile,
+                        name = string(i),
+                        comment = "alignment of random sequences",
+                        alignment = alignment)
+        global outnum = i
     end
+    print("\n final iteration ($outnum) reached")
 end

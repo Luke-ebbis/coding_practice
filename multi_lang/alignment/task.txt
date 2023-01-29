@@ -1,2 +1,1 @@
-A task: find out how this alignment programme works, what it is called 
-in bioinformatics. Refactor it into python as a way to practice coding!
+Re-factor the needleman wunch algorthim in Perl as well.

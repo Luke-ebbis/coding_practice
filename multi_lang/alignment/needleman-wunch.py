@@ -130,49 +130,33 @@ def trace_back_to_origin(x: str,
     # Here the empty alignments are initialised.
     ax = ''
     ay = ''
-    #print(sequence_X, sequence_Y)
-    #print(score_matrix)
-    #print("scores are:",
-    #      match_score, mismatch_score, indel_score)
-    #print("starting with i,j of:", i,j)
     while i > 1 and j > 1:
-        #print("\n new iteration")
         # Case 1: perfect alignment
         sc = score_matrix[i-1, j-1]
-        #print(i, j, sequence_X[i], sequence_Y[j], score_matrix[i,j], sc)
         if sequence_X[i] == sequence_Y[j]:
-            #print("CASE 0a")
             sc = sc + match_score
         else:
-            #print("CASE 0b")
             sc = sc + mismatch_score
-        #print("sc is now", sc)
 
         if sc == score_matrix[i, j]:
-            #print("CASE 1")
             ax = sequence_X[i] + ax
             ay = sequence_Y[j] + ay
             i = i-1
             j = j-1
             continue
-        #print("i,j is now,", i, j) 
-        #Case 2: best of X was aligned to gap
-        if (score_matrix[i-1, j] + indel_score) == score_matrix[ i, j]:
-            #print("CASE 2")
+        # Case 2: best of X was aligned to gap
+        if (score_matrix[i-1, j] + indel_score) == score_matrix[i, j]:
             ax = sequence_X[i] + ax
             ay = '-' + ay
             i = i-1
-            #print("i,j is now,", i, j) 
             continue
-        
-       #Case 3: best of Y was aligned to gap
-        if (score_matrix[i, j-1] + indel_score) == score_matrix[ i, j]:
-            #print("CASE 3")
-            ax = '-' + ax
+
+        # Case 3: best of Y was aligned to gap
+        if (score_matrix[i, j-1] + indel_score) == score_matrix[i, j]:
             ay = sequence_Y[j] + ay
             j = j-1
-            #print("i,j is now,", i, j) 
             continue
+    # ax and yx are the alignments.
     return ax, ay
 
 
@@ -207,19 +191,17 @@ def needleman_wunch(x: str,
     return alignment
 
 
-
 def main():
     """The main function
     """
-    for i in range(1000):
-        y_string  =  "AAAALLLSKSKKAKSKKSJDSJDKSJDKSJDKSJDKSJDKSJDKSCGCAGTTTAATATATATATAATTTAAATGGTTTAGGCGCATCAACATTTACTCTAGTTGTGTACGCGTATTGASdssadasdsadsa"
-        x_string = generate_sequence(sequence_length = len(y_string) - 1)
+    for i in range(100000):
+        y_string = generate_sequence(sequence_length=60 - 1)
+        x_string = generate_sequence(sequence_length=len(y_string) - 1)
         alignment = needleman_wunch(x=x_string,
                                     y=y_string,
                                     match_score=5,
                                     mismatch_score=-2,
                                     indel_score=-6)
-        print(alignment)
 
 
 if __name__ == "__main__":
