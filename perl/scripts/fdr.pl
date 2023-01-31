@@ -30,6 +30,9 @@ sub check_p_values {
 
 sub is_numeric {
     #'@Title checking whether an array contains only numeric values.
+    #@description This regular expression, lets real numbers pass that _are 
+    # not_ written in scientific notation. Example 1 (pass) -1 (pass) 1.335
+    # (pass) 7e3 (fail).
 
     my (@array) = @_;
     foreach(@array){
@@ -55,11 +58,38 @@ sub rank {
     print "Determining the rank of $number items.";
     
     my @T = map[ ( $array[$_] ), int( $_ ) ], 0 .. $#array;
-    # printing the array:
-    say "the T array:";
-    foreach(@ranks){
-        print join "\t", @{ $T[ $_ ] }, "\n";
+
+    # # printing the array:
+    # foreach(@ranks){
+    #     print join "\t", @{ $T[ $_ ] }, "\n";
+    # }
+    
+    # sorting the array on the first element, value of @array
+    my @T_sorted = sort { $a -> [0] cmp $b->[0] } @T;
+    
+    my ($rank, $n, $i) = (1, 1, 0);
+    
+    while( $i < $number ){
+        my $j = $i;
+
+        # ignore ties for now
+        while( $j < $number-1 and $T[$j][0]==$T[$j+1][0] ){
+            $j += 1;
+        }
+        
+        $n = $j - $i + 1;
+
+        # calculate the tie value
+        foreach( 0 .. $n-1 ){
+            my $idx = $T[$i+$_][1];
+            # Ties are handled by determining average.
+            $ranks[$idx] = $rank + ($n-1)* 0.5;
+        }
+        $rank += $n;
+        $i += $n;
     }
+    # pop @ranks;
+    return @ranks;
 }
 
 sub calculate_false_discovery_rate {
@@ -91,7 +121,7 @@ sub main {
      unless @ARGV >= 2;
     my ($d_input, @p_values_input) = @ARGV;
 
-     rank(@p_values_input);
+    say join(" ", rank(@p_values_input));
 
     #Calculate the FDR
     # my $false_discovery_rate = calculate_false_discovery_rate($d_input, 
