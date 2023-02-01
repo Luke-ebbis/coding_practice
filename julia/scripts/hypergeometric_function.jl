@@ -5,10 +5,12 @@ usage
     hypergeometric_function.jl
 =#
 
-function factorial(;n::Real)
+function factorial(n::Int)
     #= Factorial function
     @param n::Real A real number for which the factorial must be determined.
     @return Real The factorial.
+    TODO Make sure that this function can also function on a real array.
+    Check whether the types make sense.
     =#
     if n == 0
         factorial_value = 1
@@ -21,9 +23,16 @@ function factorial(;n::Real)
     return factorial_value
 end
 
-# function binomial(n::Real, k::Real)
-
-# end
+function binomial(n::Int, k::Int)
+    #= Determining the binomial coefficient.
+    @param n::Int 
+    @param k::Int
+    @return Int The calculated binomial coefficient.
+    @depends factorial()
+    =#
+    C = factorial(n) / factorial(k) * factorial(n-k)
+    return C
+end
 
 # function hypergeometric_test(X::Int, N::Int, M::Int, K::Int)
 
@@ -33,7 +42,7 @@ function main()
     #= The main procedure
     :return: To standard out.
     =#
-    print(factorial(n = 5))
+    print(binomial(50, 60))
 
     # if length(ARGS) != 4
     #     println("usage: $PROGRAM_FILE  <n> <k> \n"*
