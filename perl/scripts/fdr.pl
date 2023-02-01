@@ -55,22 +55,23 @@ sub rank {
     my $number = @array;
 
     my @ranks = (0 .. $number);
-    print "Determining the rank of $number items.";
+    print "Determining the rank of $number items.\n";
     
     my @T = map[ ( $array[$_] ), int( $_ ) ], 0 .. $#array;
 
-    # # printing the array:
-    # foreach(@ranks){
-    #     print join "\t", @{ $T[ $_ ] }, "\n";
-    # }
     
     # sorting the array on the first element, value of @array
-    my @T_sorted = sort { $a -> [0] cmp $b->[0] } @T;
+    my @T_sorted = sort { $a->[0] <=>  $b->[0] } @T;
     
+    # # printing the array:
+    # foreach(0 .. $number){
+    #     print join "\t", @{ $T_sorted[ $_ ] }, "\n";
+    # }
     my ($rank, $n, $i) = (1, 1, 0);
     
     while( $i < $number ){
         my $j = $i;
+        say  "Checking $i th number: $T[$j][0] ";
 
         # ignore ties for now
         while( $j < $number-1 and $T[$j][0]==$T[$j+1][0] ){
