@@ -73,31 +73,31 @@ sub rank {
         my $j = $i;
 
         # for debug
-        print  "$i th number: $T_sorted[$j][0] \t| ";
+        print  "$i th number: $T[$j][0] \t| ";
 
         # ignore ties for now
-        while( $j < $number-1 and $T_sorted[$j][0]==$T_sorted[$j+1][0] ){
+        while( $j < $number-1 and $T[$j][0]==$T[$j+1][0] ){
             $j += 1;
 
-            print "$T_sorted[$j][0], ";
+            print "$T[$j][0], ";
         }
         
-        $n = $j - $i + 1;
+        $n = $j - $i + 0;
 
         print "($n = $j + $i +1)\n";
 
         # calculate the tie value
         if ($n > 0) {
-            foreach( 0 .. $n-1 ){
-                my $idx = $T_sorted[$i+$_][1];
+            foreach( 0 .. $n-0 ){
+                say "handling $_ th tie value ($T[$_ +$i][0])";
+                my $idx = $T[$i+$_][1];
                 # Ties are handled by determining average.
                 $ranks[$idx] = $rank + ($n-1)* 0.5;
-                say "handling $_ th tie value ($T_sorted[$_ +$i][0]): $ranks[$idx]";
             }
         }
         $rank += $n;
         $i += $n;
-        print "\n final rank for $i th value: $ranks[$i] \n";
+        print "\n";
     }
     # pop @ranks;
     return @ranks;
