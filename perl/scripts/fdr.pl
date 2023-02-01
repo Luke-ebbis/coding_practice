@@ -67,8 +67,9 @@ sub rank {
     # foreach(0 .. $number){
     #     print join "\t", @{ $T_sorted[ $_ ] }, "\n";
     # }
+
     my ($rank, $n, $i) = (1, 1, 0);
-    
+    say "condition is $i <= $number";
     while( $i < $number ){
         my $j = $i;
 
@@ -99,7 +100,8 @@ sub rank {
         $i += $n;
         print "\n final rank for $i th value: $ranks[$i] \n";
     }
-    # pop @ranks;
+    # This solves the bug 
+    pop @ranks;
     return @ranks;
 }
 
