@@ -3,7 +3,7 @@
 #'@author Sibbe Bakker
 #'@usage ./fib.pl <d> <p values>
 #' prints the q value to be used.
-# ./fdr.pl 5 0.2 0.3 0.1 0.001 0.05 0.2 0.003 0.05 0.001 0.8 0.95 0.006
+# ./fdr.pl 0.05 0.008 0.009 0.165 0.205 0.396 0.450 0.641 0.781 0.900 0.993
 
 use strict;
 use warnings;
@@ -51,6 +51,51 @@ sub rank {
 
     my (@array) = @_;
     is_numeric(@array);
+    my $number = @array;
+    my @ranks = (0 .. $number);
+    my @T = map[ ( $array[$_] ), int( $_ ) ], 0 .. $#array;
+    
+    # sorting the array on the first element, value of @array
+    my @T_sorted = sort { $a->[0] <=>  $b->[0] } @T;
+    
+    my ($rank, $n, $i) = (1, 1, 0);
+    while( $i < $number ){
+        my $j = $i;
+
+        # ignore ties for now
+        while( $j < $number-1 and $T_sorted[$j][0]==$T_sorted[$j+1][0] ){
+            $j += 1;
+        }
+        
+        $n = $j - $i + 1;
+
+        # calculate the tie value
+        if ($n > 0) {
+            foreach( 0 .. $n-1 ){
+                my $idx = $T_sorted[$i+$_][1];
+                # Ties are handled by determining average.
+                $ranks[$idx] = $rank + ($n-1)* 0.5;
+            }
+        }
+        $rank += $n;
+        $i += $n;
+    }
+    # This solves the bug 
+    pop @ranks;
+    return @ranks;
+}
+
+sub broken_rank {
+    #'@Ranking algorithm
+    #'@param @array; numbers to be ranked.
+    #' This ranking algorithm comes from 
+    # https://www.geeksforgeeks.org/rank-elements-array/.
+    # TODO Make check to determine if all numbers are numeric. Note I do not
+    # yet know how that works.
+    #@dependencies is_numeric()
+
+    my (@array) = @_;
+    is_numeric(@array);
 
     my $number = @array;
 
@@ -69,10 +114,11 @@ sub rank {
     # }
 
     my ($rank, $n, $i) = (1, 1, 0);
-    say "condition is $i <= $number";
-    while( $i < $number ){
+    say "condition is $i < $number-1";
+    while( $i < $number-1 ){
         my $j = $i;
-
+        # for debug
+        if ($i >= $number){say "ERROR at $i"};
         # for debug
         print  "$i th number: $T_sorted[$j][0] \t| ";
 
@@ -100,12 +146,13 @@ sub rank {
         $i += $n;
         print "\n final rank for $i th value: $ranks[$i] \n";
     }
-    # This solves the bug 
-    pop @ranks;
+    # pop @ranks;
     return @ranks;
 }
 
 sub calculate_false_discovery_rate {
+    #@d, value indicating the desired FDR.
+    #@param @array A list of p values. Between 0 and 1.
     #'@description The false discovery rate is calculated using 
     #' f(j) = (d/m)×j, where j is the rank of a p value. A value is below the
     #' FDR if it is below the function f(j).
@@ -114,10 +161,22 @@ sub calculate_false_discovery_rate {
     
     # Reporting the input
     my $p_list = join(",", @p_values);
-    say "input:\nd = $d \np = $p_list";
     
+    # type checking
+    is_numeric($d);
     check_p_values(@p_values);
-    
+
+    # The number of hypothesis tests
+    my $m = @p_values;
+    my @ranks = rank(@p_values);
+
+    # The delta/m value that is multiplied with each j.
+    my $fdr_fct = $d / $m;
+
+    my @fdr_values = @ranks;
+    foreach my $p_rank (@fdr_values) { $p_rank = $p_rank * $fdr_fct; };
+
+    return @fdr_values;
 }
 
 sub main {
@@ -133,13 +192,13 @@ sub main {
          \t \t value allowed is 1.\n"
      unless @ARGV >= 2;
     my ($d_input, @p_values_input) = @ARGV;
-
-    say join(" ", rank(@p_values_input));
-
-    #Calculate the FDR
-    # my $false_discovery_rate = calculate_false_discovery_rate($d_input, 
-    #     @p_values_input);
-    # say STDOUT $false_discovery_rate;
+    
+    # Calculating
+    my @significant_p =  calculate_false_discovery_rate($d_input, 
+        @p_values_input);
+    
+    # Giving output
+    say STDOUT join(" ", @significant_p);
 }
 
 unless (caller) {
