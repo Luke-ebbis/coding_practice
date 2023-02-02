@@ -67,7 +67,6 @@ function hypergeometric_test(x::Int, n::Int, M::Int, N::Int;
         # calculate the lower bound
         p_value = 0 
         for i in 0:x
-            # calculate
             p_value += hypergeometric(i, n, M, N)
         end
     elseif bound == "upper"
@@ -89,23 +88,26 @@ function main()
     #= The main procedure
     :return: To standard out.
     =#
-    # print(binomial(100, 20))
-    print(hypergeometric_test(5, 20, 30, 100, bound="lower"), "\n")
-    print(hypergeometric_test(5, 20, 30, 100, bound="upper"))
 
-    # if length(ARGS) != 4
-    #     println("usage: $PROGRAM_FILE  <n> <k> \n"*
-    #             "n \t The number of generations. \n"*
-    #             "k \t The breeding rate of the recursive rabbits.")
-    #     exit(1)
-    # end
+    if length(ARGS) != 5
+        println("usage: $PROGRAM_FILE  <x> <n> <M> <N>\n"*
+                "x \t The number of sucesses in the sample. \n"*
+                "n \t The sample size. \n" *
+                "M \t The number of sucesses in lot\n" *
+                "N \t The lot size\n"*
+                "bound\t The bound for which the p value should be "*
+                "determined.\n")
+        exit(1)
+    end
 
-    # input_strings = ARGS
-    # n, k = map((x) -> parse(Int, x), input_strings)
+    bound = ARGS[5]
+    x, n, M, N = map((x) -> parse(Int, x), ARGS[1:4])
 
-    # population = recursive_rabbits_population(n = n, k = k)
-    # println(population)
-    # exit(0)
+
+    p_value =  hypergeometric_test(x, n, M, N, bound=bound)
+
+    println(p_value)
+    exit(0)
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__
