@@ -5,12 +5,13 @@ usage
     hypergeometric_function.jl
 =#
 
-function factorial(n::Int)
+function _factorial(n)
     #= Factorial function
     @param n::Real A real number for which the factorial must be determined.
     @return Real The factorial.
     TODO Make sure that this function can also function on a real array.
-    Check whether the types make sense.
+    Check whether the types make sense. TODO implement a table lookup for small
+    numbers. 
     =#
     if n == 0
         factorial_value = 1
@@ -28,12 +29,13 @@ function binomial(n::Int, k::Int)
     @param n::Int 
     @param k::Int
     @return Int The calculated binomial coefficient.
-    @depends factorial()
+    @depends _factorial()
     =#
     if ~(0 <= k <= n)
         throw("k must be between 0 and n (0 <= $k <= $n is false!)")
     end
-    C = factorial(n) / (factorial(k) * factorial(n-k))
+    C = _factorial(BigInt(n)) / 
+     (_factorial(BigInt(k)) * _factorial(BigInt(n-k)))
     return C
 end
 
@@ -49,16 +51,16 @@ function hypergeometric(; x::Int, n::Int, M::Int, N::Int)
     return P
 end
 
-# function hypergeometric_test(X::Int, N::Int, M::Int, K::Int)
+function hypergeometric_test(x::int, n::int, m::int, k::int;
+        bound::String="lower")
 
-# end
+end
 
 function main()
     #= The main procedure
     :return: To standard out.
     =#
     print(binomial(100, 20))
-    print((binomial(30, 5) * binomial(10, 15)) / binomial(100, 20))
     # print(hypergeometric(x = 5, n = 20, M=30, N = 100))
 
     # if length(ARGS) != 4
