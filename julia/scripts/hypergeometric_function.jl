@@ -1,8 +1,11 @@
 #! /usr/bin/env julia
-#=Commandline implementation of the hypergeometric test for GO analysis
+#= Commandline implementation of the hypergeometric test for GO analysis
 usage
-    usage Comand line usage is as follows.
+    usage Command line usage is as follows.
     hypergeometric_function.jl
+
+TODO - add exact functionality.
+     - Add explanation on how the hypergeometric test is derived.
 =#
 
 function _factorial(n)
@@ -58,8 +61,8 @@ function hypergeometric_test(x::Int, n::Int, M::Int, N::Int;
     @param n::Int Sample size.
     @param M::Int Number of successes in lot.
     @param N::Int Size of the lot.
-    @param bound::String A string of either "upper" or "lower" indicating which
-     side of the distribution is to be summed.
+    @param bound::String A string of either "upper", "lower" or exact. 
+        Indicating which side of the distribution is to be summed.
     @depends hypergeometric.
     =#
 
@@ -77,9 +80,11 @@ function hypergeometric_test(x::Int, n::Int, M::Int, N::Int;
                 p_value += hypergeometric(i, n, M, N)
             end
         end
+    elseif bound == "exact"
+            p_value = hypergeometric(x, n, M, N)
     else
         throw("error: $bound is not an option for bound. " *
-              "Please select upper or lower")
+              "Please select upper, lower or exact")
    end 
    return p_value
 end
@@ -90,7 +95,7 @@ function main()
     =#
 
     if length(ARGS) != 5
-        println("usage: $PROGRAM_FILE  <x> <n> <M> <N>\n"*
+        println("usage: $PROGRAM_FILE  <x> <n> <M> <N> bound\n"*
                 "x \t The number of sucesses in the sample. \n"*
                 "n \t The sample size. \n" *
                 "M \t The number of sucesses in lot\n" *
