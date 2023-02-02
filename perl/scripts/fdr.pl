@@ -1,6 +1,9 @@
 #! /usr/bin/env perl
 #'@title script to set a false discovery rate for a list of p values.
 #'@author Sibbe Bakker
+#@description The false discovery rate procedure devised by Yoav Benjamini 
+# Yosef Hochberg. This procedure is important when one is doing more than one
+# statistical test. 
 #'@usage ./fib.pl <d> <p values>
 #' prints the q value to be used.
 # ./fdr.pl 0.05 0.008 0.009 0.165 0.205 0.396 0.450 0.641 0.781 0.900 0.993
@@ -85,74 +88,10 @@ sub rank {
     return @ranks;
 }
 
-sub broken_rank {
-    #'@Ranking algorithm
-    #'@param @array; numbers to be ranked.
-    #' This ranking algorithm comes from 
-    # https://www.geeksforgeeks.org/rank-elements-array/.
-    # TODO Make check to determine if all numbers are numeric. Note I do not
-    # yet know how that works.
-    #@dependencies is_numeric()
-
-    my (@array) = @_;
-    is_numeric(@array);
-
-    my $number = @array;
-
-    my @ranks = (0 .. $number);
-    print "Determining the rank of $number items.\n";
-    
-    my @T = map[ ( $array[$_] ), int( $_ ) ], 0 .. $#array;
-
-    
-    # sorting the array on the first element, value of @array
-    my @T_sorted = sort { $a->[0] <=>  $b->[0] } @T;
-    
-    # # printing the array:
-    # foreach(0 .. $number){
-    #     print join "\t", @{ $T_sorted[ $_ ] }, "\n";
-    # }
-
-    my ($rank, $n, $i) = (1, 1, 0);
-    say "condition is $i < $number-1";
-    while( $i < $number-1 ){
-        my $j = $i;
-        # for debug
-        if ($i >= $number){say "ERROR at $i"};
-        # for debug
-        print  "$i th number: $T_sorted[$j][0] \t| ";
-
-        # ignore ties for now
-        while( $j < $number-1 and $T_sorted[$j][0]==$T_sorted[$j+1][0] ){
-            $j += 1;
-
-            print "$T_sorted[$j][0], ";
-        }
-        
-        $n = $j - $i + 1;
-
-        print "($n = $j + $i +1)\n";
-
-        # calculate the tie value
-        if ($n > 0) {
-            foreach( 0 .. $n-1 ){
-                my $idx = $T_sorted[$i+$_][1];
-                # Ties are handled by determining average.
-                $ranks[$idx] = $rank + ($n-1)* 0.5;
-                say "handling $_ th tie value ($T_sorted[$_ +$i][0]): $ranks[$idx]";
-            }
-        }
-        $rank += $n;
-        $i += $n;
-        print "\n final rank for $i th value: $ranks[$i] \n";
-    }
-    # pop @ranks;
-    return @ranks;
-}
-
 sub calculate_false_discovery_rate {
     #@d, value indicating the desired FDR.
     #@param @array A list of p values. Between 0 and 1.
+    #@return @array A list of corrected p values.
     #'@description The false discovery rate is calculated using 
     #' f(j) = (d/m)×j, where j is the rank of a p value. A value is below the
     #' FDR if it is below the function f(j).
@@ -163,7 +102,7 @@ sub calculate_false_discovery_rate {
     my $p_list = join(",", @p_values);
     
     # type checking
-    is_numeric($d);
+    check_p_values($d);
     check_p_values(@p_values);
 
     # The number of hypothesis tests
@@ -172,15 +111,19 @@ sub calculate_false_discovery_rate {
 
     # The delta/m value that is multiplied with each j.
     my $fdr_fct = $d / $m;
-
     my @fdr_values = @ranks;
-    foreach my $p_rank (@fdr_values) { $p_rank = $p_rank * $fdr_fct; };
 
+    # foreach my $p_rank (@fdr_values) { $p_rank = $p_rank * $fdr_fct;} 
+    foreach(@fdr_values) { $_ *= $fdr_fct };
     return @fdr_values;
 }
 
 sub main {
     #' The main procedure.
+    #
+    # The main procedure looks for arguments. The argument is $d, which is the
+    # desired false positive rate. The rest of the provided arguments are the p
+    # values that are to be corrected.
     
     # Argument handling.
     die 
@@ -204,5 +147,5 @@ sub main {
 unless (caller) {
     # Execute the main function is this is the code being run
     main()
-}#! /usr/bin/env perl
+}
 
