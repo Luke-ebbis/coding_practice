@@ -39,7 +39,7 @@ function binomial(n::Int, k::Int)
     return C
 end
 
-function hypergeometric(; x::Int, n::Int, M::Int, N::Int)
+function hypergeometric(x::Int, n::Int, M::Int, N::Int)
     #=Probability mass function
     @param x::Int Successes in the sample.
     @param n::Int Sample size.
@@ -47,21 +47,51 @@ function hypergeometric(; x::Int, n::Int, M::Int, N::Int)
     @param N::Int Size of the lot.
     @depends binomial.
     =#
-    P = (binomial(M, x) * binomial(N-M, n-x)) / (binomial(N, n)) 
-    return P
+    f = (binomial(M, x) * binomial(N-M, n-x)) / (binomial(N, n)) 
+    return f
 end
 
-function hypergeometric_test(x::int, n::int, m::int, k::int;
-        bound::String="lower")
+function hypergeometric_test(x::Int, n::Int, M::Int, N::Int;
+         bound::String="lower")
+    #= Determine the p value of a hyper geometric distribution.
+    @param x::Int Successes in the sample.
+    @param n::Int Sample size.
+    @param M::Int Number of successes in lot.
+    @param N::Int Size of the lot.
+    @param bound::String A string of either "upper" or "lower" indicating which
+     side of the distribution is to be summed.
+    @depends hypergeometric.
+    =#
 
+    if bound == "lower"
+        # calculate the lower bound
+        p_value = 0 
+        for i in 0:x
+            # calculate
+            p_value += hypergeometric(i, n, M, N)
+        end
+    elseif bound == "upper"
+        # calculate the upper bound
+        p_value = 0
+        for i in x:M
+            if n - i > 0
+                p_value += hypergeometric(i, n, M, N)
+            end
+        end
+    else
+        throw("error: $bound is not an option for bound. " *
+              "Please select upper or lower")
+   end 
+   return p_value
 end
 
 function main()
     #= The main procedure
     :return: To standard out.
     =#
-    print(binomial(100, 20))
-    # print(hypergeometric(x = 5, n = 20, M=30, N = 100))
+    # print(binomial(100, 20))
+    print(hypergeometric_test(5, 20, 30, 100, bound="lower"), "\n")
+    print(hypergeometric_test(5, 20, 30, 100, bound="upper"))
 
     # if length(ARGS) != 4
     #     println("usage: $PROGRAM_FILE  <n> <k> \n"*
