@@ -10,9 +10,9 @@ TODO - add exact functionality.
 theory
         The hyper geometric test determines whether there is a x enriched the
     given sample x. The formula below calculates the chance of obtaining
-    exactly x successes out of a lot of N with M successes using a sample size of
-    n. The denominator is the number of ways that a sample can be taken from a
-    population with N members. The numerator consist of a product of two
+    exactly x successes out of a lot of N with M successes using a sample size 
+    of n. The denominator is the number of ways that a sample can be taken
+    from a population with N members. The numerator consist of a product of two
     binomial values, the first being the number of ways a success can be
     selected, the second being the number of ways a failure is selected.
 
