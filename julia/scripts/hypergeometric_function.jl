@@ -30,8 +30,23 @@ function binomial(n::Int, k::Int)
     @return Int The calculated binomial coefficient.
     @depends factorial()
     =#
-    C = factorial(n) / factorial(k) * factorial(n-k)
+    if ~(0 <= k <= n)
+        throw("k must be between 0 and n (0 <= $k <= $n is false!)")
+    end
+    C = factorial(n) / (factorial(k) * factorial(n-k))
     return C
+end
+
+function hypergeometric(; x::Int, n::Int, M::Int, N::Int)
+    #=Probability mass function
+    @param x::Int Successes in the sample.
+    @param n::Int Sample size.
+    @param M::Int Number of successes in lot.
+    @param N::Int Size of the lot.
+    @depends binomial.
+    =#
+    P = (binomial(M, x) * binomial(N-M, n-x)) / (binomial(N, n)) 
+    return P
 end
 
 # function hypergeometric_test(X::Int, N::Int, M::Int, K::Int)
@@ -42,7 +57,9 @@ function main()
     #= The main procedure
     :return: To standard out.
     =#
-    print(binomial(50, 60))
+    print(binomial(100, 20))
+    print((binomial(30, 5) * binomial(10, 15)) / binomial(100, 20))
+    # print(hypergeometric(x = 5, n = 20, M=30, N = 100))
 
     # if length(ARGS) != 4
     #     println("usage: $PROGRAM_FILE  <n> <k> \n"*
