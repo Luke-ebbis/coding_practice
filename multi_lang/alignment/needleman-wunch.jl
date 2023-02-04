@@ -21,8 +21,8 @@ function generate_sequence(;
     letters = ["A" "T" "C" "G"])
     #=Generate a random sequence of characters with length n
 
-    :param sequence_length: Int: The length of the sequence to be generated, the
-        length n.
+    :param sequence_length: Int: The length of the sequence to be generated, 
+        the length n.
     :param letters: A array of characters. These characters will be in the
         random sequence.
     :return: String: A string of length n containing only specified characters.
@@ -273,5 +273,5 @@ if abspath(PROGRAM_FILE) == @__FILE__
                         alignment = alignment)
         global outnum = i
     end
-    print("\n final iteration ($outnum) reached")
+    print("\n final iteration ($outnum) reached\n")
 end
